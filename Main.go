@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/azzzak/alice"
 	"io/ioutil"
 	"log"
 	"math"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/azzzak/alice"
 )
 
 var temperature = -999
@@ -78,14 +79,20 @@ func main() {
 		_, resp := k.Init()
 
 		dataAge := int(math.Round(time.Now().Sub(dataTime).Minutes())) // Сколько минут назад последний раз получали данные
+
+		pluralTemperature := temperature
+		if pluralTemperature < 0 {
+			pluralTemperature = -pluralTemperature
+		}
+
 		var respText string
 		if temperature == -999 || dataAge > 60 {
 			respText = "Информация отсутствует. Попробуйте спросить позже."
 		} else if dataAge > 15 {
 			respText = fmt.Sprintf("%d %s назад температура была ", dataAge, alice.Plural(dataAge, "минута", "минуты", "минут"))
-			respText += fmt.Sprintf("%d %s", temperature, alice.Plural(temperature, "градус", "градуса", "градусов"))
+			respText += fmt.Sprintf("%d %s", temperature, alice.Plural(pluralTemperature, "градус", "градуса", "градусов"))
 		} else {
-			respText = fmt.Sprintf("%d %s", temperature, alice.Plural(temperature, "градус", "градуса", "градусов"))
+			respText = fmt.Sprintf("%d %s", temperature, alice.Plural(pluralTemperature, "градус", "градуса", "градусов"))
 		}
 		return resp.Text(respText).EndSession()
 	})
